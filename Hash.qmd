@@ -1,0 +1,111 @@
+---
+title: "Hash函数"
+format: html
+jupyter: justcoding
+---
+
+## 什么是Hash算法
+
+&emsp;&emsp;根据数据量预先设定一个长度为M的数组，使用一个哈希函数F并以数据的关键字作为自变量，得到唯一的返回值，返回值的范围为0~M-1，这样就可以利用哈希函数F将数据元素映射到数组的某一位下标并把数据存放在对应位置上。查找时，利用哈希函数F计算该数据应该存储在哪里，再到相应的存储位置取出查找的数据。
+
+&emsp;&emsp;例如，有一组数据3、11、8、6需要存储，哈希函数为$F(x)=x\%7$，那么利用哈希函数$F$存储的数据如下表所示。
+
+| 0  | 1  |  2 |  3 |  4 |  5 |  6 | 
+|--------|--------|--------| --------| -------- | --------|--------| 
+|   | 8   |  | 3 | 11  |   | 6  | 
+
+
+
+: 哈希函数示例(第一行是数组的下标，第二行是数据的关键字)
+
+
+&emsp;&emsp;然而由于关键字的取值可能在一个很大的范围，数据在通过哈希函数进行映射的时候，很难找到一个哈希函数，使得这些关键字不能映射到唯一的值，就会出现多个关键字映射到同一个值的现象，这种现象我们称为冲突。
+
+---
+
+### 链地址法
+
+&emsp;&emsp;链地址法处理冲突的方法本质上是一种数组加链表的处理方法，当发生多个数据通过哈希函数映射后得到相同的哈希值时，通常把具有相同哈希地址的关键字放在同一个链表中，称该链表为同义词链表，该链表也被称为桶。
+
+&emsp;&emsp;当把相同哈希地址的关键字数据都放在同一个链表中时，有 N 个哈希地址就有 N 个链表。同时，用数组 Hash[0..N-1] 存放每个链表的头指针，之后把哈希地址为 i 的数据全部以节点的方式插入对应的链表里，如下图所示。
+
+![](./pics/%E9%93%BE%E5%9C%B0%E5%9D%80%E6%B3%95%E8%A7%A3%E5%86%B3%E5%86%B2%E7%AA%81.png){fig-align="center" width=70%}
+
+&emsp;&emsp;**注意：链地址法本质上是数组+链表的数据结构。**
+
+#### 链地址法的步骤
+
+&emsp;&emsp;链地址法存储数据的过程是这样的，首先建立一个数组 Hash 存储所有链表的头指针，由数据的关键字 Key 通过对应的哈希函数计算出哈希地址，找到相应的桶号，之后建立新的节点存储该数据，并把节点放到桶内链表的最后面或者最前面。
+
+&emsp;&emsp;和存储数据的方法类似，查找数据的时候，也是由数据的关键字通过哈希函数计算关键字对应的哈希地址，之后顺序比较桶的内部节点是否与所查找的关键字一样直到找到数据为止。如果全部节点都不和关键字一样，则说明哈希表里没有该数据。这个解决冲突的方法对哈希函数的要求很高，如果哈希函数选得不太好的话，哈希表的查找效率会退化为链表的查找，也就是顺序查找。
+
+&emsp;&emsp;用链地址法构造的散列表，插入和删除节点操作易于实现，所以构造链表的时间开销很低，但是指针需要开辟额外的地址空间，当数据量很大时，会扩大哈希表规模，内存空间需求较大。
+
+---
+
+## 两个数的和
+
+&emsp;&emsp;给定的一些数字中找出两个数，使得它们的和为N，前提是这些数据中保证有答案，并且只有一个答案。
+
+### 解法一
+
+```{python}
+#| echo: true
+#| eval: false
+def twoSum(nums, target):
+    res= []                         #存放结果编号数据
+    newnums= nums[:]                #深拷贝，把原数据复制到 newnums 里
+    newnums.sort()                  #对新数组排序
+    left = 0
+    right = len(newnums) - 1        #定义 left 和 right 指针分别指向新数组的开头和结尾
+    while left < right:
+        if newnums[left] + newnums[right] == target:
+            for i in range(0,len(nums)):         #在原始数组中寻找第一个元素的原始下标
+                if nums[i] == newnums[left]:
+                    res.append(i)                 #将下标加入结果集
+                    break
+            for i in range(len(nums)-1,-1,-1):    #在原始数组中寻找第二个元素的原始下标
+                if nums[i] == newnums[right]:
+                    res.append(i)                 #将下标加入结果集
+                    break
+            res.sort()
+            break
+        elif newnums[left] + newnums[right] < target:
+            left = left + 1                     #让 left 指针向右移动一位
+        elif newnums[left] + newnums[right] > target:
+            right = right - 1                   #让 right 指针向左移动一位
+    return (res[0]+1,res[1]+1)   #返回结果集
+```
+
+---
+
+### 解法二
+```{python}
+def duoSummatio2(nums, target):
+    hashmap = {}
+    for i in range(len(nums)):
+        m=nums[i]
+        if target - m in hashmap:
+            return [hashmap[target - m], i]
+        hashmap[m] = i
+```
+---
+
+## 单词模式匹配 
+
+```{python}
+def wordPattern(pattern, s):
+    s = s.split()
+    if len(pattern) != len(s):
+        return False
+    hashmap = {}
+    for i in range(len(pattern)):
+        if pattern[i] in hashmap:
+            if hashmap[pattern[i]] != s[i]:
+                return False
+        else:
+            if s[i] in hashmap.values():
+                return False
+            hashmap[pattern[i]] = s[i]
+    return True 
+```
