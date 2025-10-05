@@ -1,0 +1,37 @@
+---
+title: "回溯算法"
+format: html
+jupyter: justcoding
+---
+
+&emsp;&emsp;回溯算法（backtracking algorithm）是一种通过穷举来解决问题的方法，它的核心思想是从一个初始状态出发，暴力搜索所有可能的解决方案，当遇到正确的解则将其记录，直到找到解或者尝试了所有可能的选择都无法找到解为止。**回溯算法通常采用“深度优先搜索”来遍历解空间。**
+
+Question: 在二叉树中搜索所有值为7 的节点，请返回根节点到这些节点的路径。
+
+```{mermaid}
+graph TD
+    A((1)) --> B((7))
+    A --> C((3))
+    B --> D((4))
+    B --> E((5))
+    C --> F((6))
+    C --> G((7))
+```
+
+```{python}
+def pre_order(root):
+    """前序遍历查找值为7的节点"""
+    if root is None or root.val == 3:
+        return
+    
+    # 访问当前节点
+    path.append(root)
+    if root.val == 7:
+        res.append(root)
+    
+    # 递归遍历左右子树
+    pre_order(root.left)
+    pre_order(root.right)
+    path.pop()
+```
+---
